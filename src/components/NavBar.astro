@@ -1,0 +1,66 @@
+---
+const navLinks = [
+    { href: "/", label: "Inicio" },
+    { href: "/catalogo", label: "Catálogo" },
+    { href: "/servicios", label: "Servicios" },
+    { href: "/nosotras", label: "Nosotras" },
+    { href: "/contacto", label: "Contacto" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+    <!-- Logo / Nombre -->
+    <a href="/" class="text-xl font-semibold tracking-widest uppercase text-gray-900">
+        Carmen Selección
+    </a>
+
+    <!-- Links escritorio -->
+    <ul class="hidden md:flex gap-8 text-sm tracking-wide text-gray-700">
+        {navLinks.map(({ href, label }) => (
+                <li>
+                    <a
+                            href={href}
+                            class={`hover:text-black transition-colors ${
+                                currentPath === href ? "text-black font-medium border-b border-black pb-0.5" : ""
+                            }`}
+                    >
+                        {label}
+                    </a>
+                </li>
+        ))}
+    </ul>
+
+    <!-- Menú móvil (hamburger simple) -->
+    <button
+            id="menu-toggle"
+            class="md:hidden flex flex-col gap-1.5 cursor-pointer"
+            aria-label="Abrir menú"
+    >
+        <span class="block w-6 h-px bg-gray-900"></span>
+        <span class="block w-6 h-px bg-gray-900"></span>
+        <span class="block w-6 h-px bg-gray-900"></span>
+    </button>
+</nav>
+
+<!-- Menú móvil desplegable -->
+<div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-100 px-6 pb-4">
+    <ul class="flex flex-col gap-4 text-sm tracking-wide text-gray-700 pt-4">
+        {navLinks.map(({ href, label }) => (
+                <li>
+                    <a href={href} class="hover:text-black transition-colors block">
+                        {label}
+                    </a>
+                </li>
+        ))}
+    </ul>
+</div>
+
+<script>
+    const toggle = document.getElementById("menu-toggle");
+    const menu = document.getElementById("mobile-menu");
+    toggle?.addEventListener("click", () => {
+        menu?.classList.toggle("hidden");
+    });
+</script>
