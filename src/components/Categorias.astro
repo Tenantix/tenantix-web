@@ -1,0 +1,31 @@
+---
+import { getCategorias } from "../lib/api";
+
+const categorias = await getCategorias();
+---
+
+<section class="px-12 py-16">
+    <div class="mb-10">
+        <span class="text-xs tracking-[0.2em] uppercase text-muted">Categorías</span>
+        <h2 class="font-display text-4xl font-light text-dark mt-2">
+            Descubre nuestra colección
+        </h2>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {categorias.map((cat) => (
+                <a href={`/catalogo?categoria=${cat.slug}`} class="group relative overflow-hidden">
+                    <div class="aspect-[2/3] overflow-hidden bg-cream">
+                        <img
+                                src={cat.imagen}
+                                alt={cat.label}
+                                class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        />
+                    </div>
+                    <span class="block mt-2 text-sm tracking-wide text-dark group-hover:text-muted transition-colors">
+          {cat.label}
+        </span>
+                </a>
+        ))}
+    </div>
+</section>
