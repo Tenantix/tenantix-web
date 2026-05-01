@@ -1,7 +1,7 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import StickyBar from "../components/StickyBar.astro";
-import { getCatalogo } from "../lib/api";
+import Layout from "../../layouts/Layout.astro";
+import StickyBar from "../../components/StickyBar.astro";
+import { getCatalogo } from "../../lib/api.ts";
 
 const vestidos = await getCatalogo();
 const categorias = ["todos", "novia", "madrina", "fiesta", "otro"];
