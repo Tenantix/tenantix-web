@@ -56,83 +56,17 @@ export async function getNovedades(): Promise<Vestido[]> {
     }
     return placeholderVestidos(5, 20);
 }
-
 export async function getCatalogo(): Promise<Vestido[]> {
     if (USE_REAL_API) {
         const res = await fetch(`${API_BASE_URL}/vestidos`);
         return res.json();
     }
     const categorias: Vestido["categoria"][] = ["novia", "madrina", "fiesta", "otro"];
-    return Array.from({ length: 16 }, (_, i) => ({
+    return Array.from({length: 16}, (_, i) => ({
         id: i + 1,
         titulo: `Vestido ${i + 1}`,
         categoria: categorias[i % categorias.length],
         imagen: `https://picsum.photos/seed/cat-${i}/400/600`,
         nuevo: i < 4,
     }));
-}
-
-export async function getVestidoById(id: number): Promise<Vestido | null> {
-    if (USE_REAL_API) {
-        const res = await fetch(`${API_BASE_URL}/vestidos/${id}`);
-        if (!res.ok) return null;
-        return res.json();
-    }
-    const categorias: Vestido["categoria"][] = ["novia", "madrina", "fiesta", "otro"];
-    return {
-        id,
-        titulo: `Vestido ${id}`,
-        categoria: categorias[id % categorias.length],
-        imagen: `https://picsum.photos/seed/cat-${id}/400/600`,
-        imagenes: [
-            `https://picsum.photos/seed/cat-${id}/400/600`,
-            `https://picsum.photos/seed/cat-${id}b/400/600`,
-            `https://picsum.photos/seed/cat-${id}c/400/600`,
-        ],
-        descripcion: "Elegante vestido de corte sirena con escote recto y tirantes finos. Confeccionado en tejido de alta calidad con caída impecable. Disponible para prueba en tienda previa cita.",
-        nuevo: id <= 4,
-        disponible: true,
-    };
-}
-
-export interface FranjaHoraria {
-    hora: string;
-    disponible: boolean;
-}
-
-export interface CitaPayload {
-    nombre: string;
-    telefono: string;
-    email: string;
-    fecha: string;
-    hora: string;
-    mensaje?: string;
-}
-
-export async function getDisponibilidad(fecha: string): Promise<FranjaHoraria[]> {
-    if (USE_REAL_API) {
-        const res = await fetch(`${API_BASE_URL}/citas/disponibilidad?fecha=${fecha}`);
-        return res.json();
-    }
-    // Placeholder: franjas fijas con algunas ocupadas
-    const franjas = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"];
-    return franjas.map((hora, i) => ({
-        hora,
-        disponible: i % 3 !== 1, // simula algunas ocupadas
-    }));
-}
-
-export async function crearCita(payload: CitaPayload): Promise<{ ok: boolean; id?: number }> {
-    if (USE_REAL_API) {
-        const res = await fetch(`${API_BASE_URL}/citas`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-        if (!res.ok) return { ok: false };
-        const data = await res.json();
-        return { ok: true, id: data.id };
-    }
-    // Placeholder: simula éxito
-    return { ok: true, id: Math.floor(Math.random() * 1000) };
 }
