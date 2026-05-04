@@ -1,11 +1,13 @@
 ---
-import StickyBar from "../components/StickyBar.astro";
-import { getCatalogo } from "../lib/api";
+import Layout from "../../layouts/Layout.astro";
+import StickyBar from "../../components/StickyBar.astro";
+import { getCatalogo } from "../../lib/api.ts";
 
 const vestidos = await getCatalogo();
 const categorias = ["todos", "novia", "madrina", "fiesta", "otro"];
 ---
 
+<Layout title="Catálogo – Carmen Selección">
     <section class="px-12 py-16">
 
         <!-- Cabecera -->
@@ -75,7 +77,7 @@ const categorias = ["todos", "novia", "madrina", "fiesta", "otro"];
 
     </section>
     <StickyBar />
-
+</Layout>
 
 <script>
     const botones = document.querySelectorAll<HTMLButtonElement>(".filtro-btn");

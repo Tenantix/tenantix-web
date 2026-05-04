@@ -8,7 +8,10 @@ export interface Vestido {
     titulo: string;
     categoria: "novia" | "madrina" | "fiesta" | "otro";
     imagen: string;
+    imagenes?: string[];
+    descripcion?: string;
     nuevo?: boolean;
+    disponible?: boolean;
 }
 
 // Placeholder: usa picsum.photos con seed fijo para que no cambien al recargar
