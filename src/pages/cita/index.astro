@@ -1,0 +1,212 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Reservar cita – Carmen Selección">
+    <section class="px-12 py-16 max-w-2xl mx-auto">
+
+        <div class="mb-10">
+            <span class="text-xs tracking-[0.2em] uppercase text-muted">Atención personalizada</span>
+            <h1 class="font-display text-5xl font-light text-dark mt-2">Reservar cita</h1>
+            <p class="text-sm text-muted mt-4 leading-relaxed">
+                Elige el día y la hora que mejor te venga. Te atendemos de forma personalizada
+                para que encuentres el vestido perfecto.
+            </p>
+        </div>
+
+        <form id="form-cita" class="flex flex-col gap-6">
+
+            <!-- Nombre -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs tracking-widest uppercase text-muted">Nombre completo</label>
+                <input
+                        id="nombre"
+                        type="text"
+                        required
+                        placeholder="Ana García"
+                        class="border border-gray-200 px-4 py-3 text-sm text-dark placeholder:text-gray-300 focus:outline-none focus:border-dark transition-colors"
+                />
+            </div>
+
+            <!-- Email -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs tracking-widest uppercase text-muted">Email</label>
+                <input
+                        id="email"
+                        type="email"
+                        required
+                        placeholder="ana@email.com"
+                        class="border border-gray-200 px-4 py-3 text-sm text-dark placeholder:text-gray-300 focus:outline-none focus:border-dark transition-colors"
+                />
+            </div>
+
+            <!-- Teléfono -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs tracking-widest uppercase text-muted">Teléfono</label>
+                <input
+                        id="telefono"
+                        type="tel"
+                        required
+                        placeholder="677 123 456"
+                        class="border border-gray-200 px-4 py-3 text-sm text-dark placeholder:text-gray-300 focus:outline-none focus:border-dark transition-colors"
+                />
+            </div>
+
+            <!-- Fecha -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs tracking-widest uppercase text-muted">Fecha</label>
+                <input
+                        id="fecha"
+                        type="date"
+                        required
+                        class="border border-gray-200 px-4 py-3 text-sm text-dark focus:outline-none focus:border-dark transition-colors"
+                />
+            </div>
+
+            <!-- Franjas horarias -->
+            <div class="flex flex-col gap-3">
+                <label class="text-xs tracking-widest uppercase text-muted">Hora disponible</label>
+                <div id="franjas" class="flex flex-wrap gap-2">
+                    <p class="text-xs text-muted">Selecciona una fecha para ver los horarios disponibles.</p>
+                </div>
+                <input type="hidden" id="hora" required />
+            </div>
+
+            <!-- Mensaje -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs tracking-widest uppercase text-muted">
+                    Mensaje <span class="normal-case">(opcional)</span>
+                </label>
+                <textarea
+                        id="mensaje"
+                        rows="3"
+                        placeholder="Cuéntanos qué tipo de vestido buscas..."
+                        class="border border-gray-200 px-4 py-3 text-sm text-dark placeholder:text-gray-300 focus:outline-none focus:border-dark transition-colors resize-none"
+                ></textarea>
+            </div>
+
+            <!-- Error -->
+            <p id="error" class="hidden text-xs text-red-500">
+                Ha ocurrido un error al reservar. Por favor inténtalo de nuevo.
+            </p>
+
+            <!-- Submit -->
+            <button
+                    type="submit"
+                    id="btn-submit"
+                    class="bg-dark text-white text-xs tracking-widest uppercase px-6 py-4 hover:bg-muted transition-colors duration-300 disabled:opacity-50"
+            >
+                Confirmar reserva
+            </button>
+
+        </form>
+    </section>
+</Layout>
+
+<script>
+    const fechaInput = document.getElementById("fecha") as HTMLInputElement;
+    const franjasContainer = document.getElementById("franjas") as HTMLDivElement;
+    const horaHidden = document.getElementById("hora") as HTMLInputElement;
+    const form = document.getElementById("form-cita") as HTMLFormElement;
+    const btnSubmit = document.getElementById("btn-submit") as HTMLButtonElement;
+    const errorMsg = document.getElementById("error") as HTMLParagraphElement;
+
+    // Mínimo hoy
+    const hoy = new Date().toISOString().split("T")[0];
+    fechaInput.min = hoy;
+
+    // Cargar franjas al cambiar fecha
+    fechaInput.addEventListener("change", async () => {
+        const fecha = fechaInput.value;
+        if (!fecha) return;
+
+        franjasContainer.innerHTML = `<p class="text-xs text-muted">Cargando horarios...</p>`;
+        horaHidden.value = "";
+
+        try {
+            // Cuando USE_REAL_API=true esto llama a tu API
+            // Por ahora usamos el placeholder directamente
+            const res = await fetch(`/api/disponibilidad?fecha=${fecha}`).catch(() => null);
+            let franjas;
+
+            if (res && res.ok) {
+                franjas = await res.json();
+            } else {
+                // Placeholder client-side
+                const horas = ["10:00","10:30","11:00","11:30","12:00","12:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00"];
+                franjas = horas.map((hora, i) => ({ hora, disponible: i % 3 !== 1 }));
+            }
+
+            franjasContainer.innerHTML = "";
+            franjas.forEach(({ hora, disponible }: { hora: string; disponible: boolean }) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = hora;
+                btn.dataset.hora = hora;
+                btn.className = `text-xs px-4 py-2 border transition-colors duration-200 ${
+                    disponible
+                        ? "border-dark text-dark hover:bg-dark hover:text-white cursor-pointer"
+                        : "border-gray-200 text-gray-300 cursor-not-allowed"
+                }`;
+                btn.disabled = !disponible;
+
+                if (disponible) {
+                    btn.addEventListener("click", () => {
+                        document.querySelectorAll<HTMLButtonElement>("[data-hora]").forEach((b) => {
+                            b.classList.remove("bg-dark", "text-white");
+                            b.classList.add("border-dark", "text-dark");
+                        });
+                        btn.classList.add("bg-dark", "text-white");
+                        btn.classList.remove("text-dark");
+                        horaHidden.value = hora;
+                    });
+                }
+
+                franjasContainer.appendChild(btn);
+            });
+        } catch {
+            franjasContainer.innerHTML = `<p class="text-xs text-red-500">Error cargando horarios.</p>`;
+        }
+    });
+
+    // Submit
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorMsg.classList.add("hidden");
+
+        const nombre = (document.getElementById("nombre") as HTMLInputElement).value;
+        const email = (document.getElementById("email") as HTMLInputElement).value;
+        const telefono = (document.getElementById("telefono") as HTMLInputElement).value;
+        const fecha = fechaInput.value;
+        const hora = horaHidden.value;
+        const mensaje = (document.getElementById("mensaje") as HTMLTextAreaElement).value;
+
+        if (!hora) {
+            franjasContainer.insertAdjacentHTML("afterend", `<p class="text-xs text-red-500">Por favor selecciona una hora.</p>`);
+            return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = "Enviando...";
+
+        try {
+            const res = await fetch("/api/citas", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre, email, telefono, fecha, hora, mensaje }),
+            }).catch(() => null);
+
+            // Si la API no está lista aún, redirigimos igualmente (placeholder)
+            if (!res || res.ok || true) {
+                const params = new URLSearchParams({ nombre, email, fecha, hora });
+                window.location.href = `/cita/confirmacion?${params}`;
+            } else {
+                throw new Error();
+            }
+        } catch {
+            errorMsg.classList.remove("hidden");
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = "Confirmar reserva";
+        }
+    });
+</script>
