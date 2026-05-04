@@ -1,0 +1,31 @@
+---
+import { getNovedades } from "../lib/api";
+
+const novedades = await getNovedades();
+---
+
+<section class="px-12 py-16 accent-white">
+    <div class="mb-10">
+        <span class="text-xs tracking-[0.2em] uppercase text-muted">Destacados</span>
+        <h2 class="font-display text-4xl font-light text-dark mt-2">
+            Novedades disponibles
+        </h2>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {novedades.map((vestido) => (
+                <a href={`/catalogo/${vestido.id}`} class="group relative overflow-hidden">
+                    <div class="aspect-[2/3] overflow-hidden bg-white">
+                        <img
+                                src={vestido.imagen}
+                                alt={vestido.titulo}
+                                class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        />
+                    </div>
+                    <span class="block mt-2 text-sm tracking-wide text-dark group-hover:text-muted transition-colors">
+          {vestido.titulo}
+        </span>
+                </a>
+        ))}
+    </div>
+</section>

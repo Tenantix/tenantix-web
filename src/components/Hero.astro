@@ -1,0 +1,81 @@
+---
+import { getHeroSlides } from "../lib/api";
+
+const slides = await getHeroSlides();
+---
+
+<section class="bg-cream flex flex-col md:flex-row items-stretch min-h-[420px]">
+    <!-- Columna izquierda: texto -->
+    <div class="flex flex-col justify-center px-12 py-16 md:w-2/5">
+    <span class="text-xs tracking-[0.2em] uppercase text-muted mb-4">
+      Colección verano
+    </span>
+        <h1 class="font-display text-5xl leading-tight font-light text-dark mb-6">
+            Encuentra el vestido<br />
+            <em>que siempre soñaste</em>
+        </h1>
+        <p class="text-sm text-muted leading-relaxed mb-8">
+            Sastrería y moda femenina en Burriana.<br />
+            Citas personalizadas para que te sientas única.
+        </p>
+        <a
+                href="/catalogo"
+                class="self-start bg-dark text-white text-xs tracking-widest uppercase px-6 py-3 hover:bg-muted transition-colors duration-300"
+        >
+            Ver catálogo
+        </a>
+    </div>
+
+    <!-- Columna derecha: carrusel -->
+    <div class="md:w-3/5 relative overflow-hidden">
+        <div id="carousel-track" class="flex h-full transition-transform duration-500 ease-in-out">
+            {slides.map((src, i) => (
+                    <div class="min-w-[25%] h-full">
+                        <img
+                                src={src}
+                                alt={`Vestido ${i + 1}`}
+                                class="w-full h-full object-cover object-top"
+                        />
+                    </div>
+            ))}
+        </div>
+
+        <button
+                id="prev"
+                class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-dark w-8 h-8 flex items-center justify-center transition-colors text-xl"
+                aria-label="Anterior"
+        >
+            ‹
+        </button>
+        <button
+                id="next"
+                class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-dark w-8 h-8 flex items-center justify-center transition-colors text-xl"
+                aria-label="Siguiente"
+        >
+            ›
+        </button>
+    </div>
+</section>
+
+<script>
+    const track = document.getElementById("carousel-track") as HTMLElement;
+    const totalSlides = track.children.length;
+    const visibleSlides = 4;
+    const maxOffset = totalSlides - visibleSlides;
+    let current = 0;
+
+    function updateCarousel() {
+        const offset = (current / totalSlides) * 100;
+        track.style.transform = `translateX(-${offset}%)`;
+    }
+
+    document.getElementById("next")?.addEventListener("click", () => {
+        current = current < maxOffset ? current + 1 : 0;
+        updateCarousel();
+    });
+
+    document.getElementById("prev")?.addEventListener("click", () => {
+        current = current > 0 ? current - 1 : maxOffset;
+        updateCarousel();
+    });
+</script>
