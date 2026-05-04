@@ -53,3 +53,17 @@ export async function getNovedades(): Promise<Vestido[]> {
     }
     return placeholderVestidos(5, 20);
 }
+export async function getCatalogo(): Promise<Vestido[]> {
+    if (USE_REAL_API) {
+        const res = await fetch(`${API_BASE_URL}/vestidos`);
+        return res.json();
+    }
+    const categorias: Vestido["categoria"][] = ["novia", "madrina", "fiesta", "otro"];
+    return Array.from({length: 16}, (_, i) => ({
+        id: i + 1,
+        titulo: `Vestido ${i + 1}`,
+        categoria: categorias[i % categorias.length],
+        imagen: `https://picsum.photos/seed/cat-${i}/400/600`,
+        nuevo: i < 4,
+    }));
+}
