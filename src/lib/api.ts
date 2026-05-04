@@ -56,41 +56,17 @@ export async function getNovedades(): Promise<Vestido[]> {
     }
     return placeholderVestidos(5, 20);
 }
-
 export async function getCatalogo(): Promise<Vestido[]> {
     if (USE_REAL_API) {
         const res = await fetch(`${API_BASE_URL}/vestidos`);
         return res.json();
     }
     const categorias: Vestido["categoria"][] = ["novia", "madrina", "fiesta", "otro"];
-    return Array.from({ length: 16 }, (_, i) => ({
+    return Array.from({length: 16}, (_, i) => ({
         id: i + 1,
         titulo: `Vestido ${i + 1}`,
         categoria: categorias[i % categorias.length],
         imagen: `https://picsum.photos/seed/cat-${i}/400/600`,
         nuevo: i < 4,
     }));
-}
-
-export async function getVestidoById(id: number): Promise<Vestido | null> {
-    if (USE_REAL_API) {
-        const res = await fetch(`${API_BASE_URL}/vestidos/${id}`);
-        if (!res.ok) return null;
-        return res.json();
-    }
-    const categorias: Vestido["categoria"][] = ["novia", "madrina", "fiesta", "otro"];
-    return {
-        id,
-        titulo: `Vestido ${id}`,
-        categoria: categorias[id % categorias.length],
-        imagen: `https://picsum.photos/seed/cat-${id}/400/600`,
-        imagenes: [
-            `https://picsum.photos/seed/cat-${id}/400/600`,
-            `https://picsum.photos/seed/cat-${id}b/400/600`,
-            `https://picsum.photos/seed/cat-${id}c/400/600`,
-        ],
-        descripcion: "Elegante vestido de corte sirena con escote recto y tirantes finos. Confeccionado en tejido de alta calidad con caída impecable. Disponible para prueba en tienda previa cita.",
-        nuevo: id <= 4,
-        disponible: true,
-    };
 }
