@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Página no encontrada – Carmen Selección">
+  <section class="px-12 py-32 max-w-xl mx-auto text-center">
+
+    <span class="font-display text-[120px] font-light text-gray-100 leading-none block">404</span>
+
+    <div class="-mt-4">
+      <h1 class="font-display text-4xl font-light text-dark mb-4">
+        Página no encontrada
+      </h1>
+      <p class="text-sm text-muted leading-relaxed mb-10">
+        La página que buscas no existe o ha sido movida.<br />
+        Vuelve al inicio y sigue explorando nuestra colección.
+      </p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a
+        href="/"
+        class="bg-dark text-white text-xs tracking-widest uppercase px-6 py-4 hover:bg-muted transition-colors duration-300"
+      >
+        Volver al inicio
+      </a>
+      <a
+        href="/catalogo"
+        class="border border-dark text-dark text-xs tracking-widest uppercase px-6 py-4 hover:bg-dark hover:text-white transition-colors duration-300"
+      >
+        Ver catálogo
+      </a>
+    </div>
+
+  </section>
+</Layout>
