@@ -94,3 +94,45 @@ export async function getVestidoById(id: number): Promise<Vestido | null> {
         disponible: true,
     };
 }
+
+export interface FranjaHoraria {
+    hora: string;
+    disponible: boolean;
+}
+
+export interface CitaPayload {
+    nombre: string;
+    telefono: string;
+    email: string;
+    fecha: string;
+    hora: string;
+    mensaje?: string;
+}
+
+export async function getDisponibilidad(fecha: string): Promise<FranjaHoraria[]> {
+    if (USE_REAL_API) {
+        const res = await fetch(`${API_BASE_URL}/citas/disponibilidad?fecha=${fecha}`);
+        return res.json();
+    }
+    // Placeholder: franjas fijas con algunas ocupadas
+    const franjas = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"];
+    return franjas.map((hora, i) => ({
+        hora,
+        disponible: i % 3 !== 1, // simula algunas ocupadas
+    }));
+}
+
+export async function crearCita(payload: CitaPayload): Promise<{ ok: boolean; id?: number }> {
+    if (USE_REAL_API) {
+        const res = await fetch(`${API_BASE_URL}/citas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        if (!res.ok) return { ok: false };
+        const data = await res.json();
+        return { ok: true, id: data.id };
+    }
+    // Placeholder: simula éxito
+    return { ok: true, id: Math.floor(Math.random() * 1000) };
+}

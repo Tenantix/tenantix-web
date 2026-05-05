@@ -1,0 +1,66 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const { nombre, email, fecha, hora } = Astro.url.searchParams
+    ? Object.fromEntries(Astro.url.searchParams)
+    : {};
+
+// Formatear fecha
+const fechaFormateada = fecha
+    ? new Date(fecha + "T00:00:00").toLocaleDateString("es-ES", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    })
+    : "";
+---
+
+<Layout title="Cita confirmada – Carmen Selección">
+    <section class="px-12 py-24 max-w-xl mx-auto text-center">
+
+        <!-- Icono check -->
+        <div class="w-16 h-16 rounded-full border-2 border-dark flex items-center justify-center mx-auto mb-8">
+            <svg class="w-7 h-7 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+
+        <span class="text-xs tracking-[0.2em] uppercase text-muted">Reserva recibida</span>
+        <h1 class="font-display text-5xl font-light text-dark mt-3 mb-6">
+            ¡Hasta pronto, {nombre || ""}!
+        </h1>
+
+        <p class="text-sm text-muted leading-relaxed mb-8">
+            Hemos recibido tu solicitud de cita para el
+            <strong class="text-dark font-medium">{fechaFormateada}</strong>
+            a las <strong class="text-dark font-medium">{hora}</strong>.
+            Te enviaremos una confirmación a <strong class="text-dark font-medium">{email}</strong>.
+        </p>
+
+        <div class="bg-cream p-6 text-left mb-10">
+            <p class="text-xs tracking-widest uppercase text-muted mb-4">Recuerda</p>
+            <ul class="text-sm text-muted space-y-2">
+                <li>· Llega 5 minutos antes de tu cita</li>
+                <li>· Puedes traer acompañante si lo deseas</li>
+                <li>· Si necesitas cancelar, llámanos al <a href="tel:677314886" class="text-dark underline">677 31 48 86</a></li>
+            </ul>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <a
+                    href="/"
+                    class="bg-dark text-white text-xs tracking-widest uppercase px-6 py-4 hover:bg-muted transition-colors duration-300"
+            >
+                Volver al inicio
+            </a>
+            <a
+                    href="/catalogo"
+                    class="border border-dark text-dark text-xs tracking-widest uppercase px-6 py-4 hover:bg-dark hover:text-white transition-colors duration-300"
+            >
+                Seguir viendo vestidos
+            </a>
+        </div>
+
+    </section>
+</Layout>
