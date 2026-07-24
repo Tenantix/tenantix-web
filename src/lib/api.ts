@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 import type { Servicio, GaleriaItem, FranjaHoraria, CitaPayload } from "./types";
 
-const USE_REAL_API = false;
+const USE_REAL_API = true;
 
 export async function getHeroSlides(): Promise<string[]> {
     if (USE_REAL_API) {
