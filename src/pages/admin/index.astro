@@ -1,0 +1,42 @@
+---
+export const prerender = false;
+
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabase";
+
+const { count: citasCount } = await supabase
+    .from("citas")
+    .select("*", { count: "exact", head: true });
+
+const { count: trabajosCount } = await supabase
+    .from("trabajos")
+    .select("*", { count: "exact", head: true });
+
+const { count: serviciosCount } = await supabase
+    .from("servicios")
+    .select("*", { count: "exact", head: true });
+---
+
+<AdminLayout>
+    <div class="mb-10">
+        <h1 class="font-display text-4xl font-light text-dark">Dashboard</h1>
+        <p class="text-sm text-muted mt-1">Resumen del sitio</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="/admin/citas" class="block bg-cream p-8 hover:bg-dark hover:text-white transition-colors group">
+            <span class="font-display text-5xl font-light">{citasCount ?? 0}</span>
+            <p class="text-sm text-muted mt-2 group-hover:text-white/60">Citas recibidas</p>
+        </a>
+
+        <a href="/admin/galeria" class="block bg-cream p-8 hover:bg-dark hover:text-white transition-colors group">
+            <span class="font-display text-5xl font-light">{trabajosCount ?? 0}</span>
+            <p class="text-sm text-muted mt-2 group-hover:text-white/60">Trabajos en galería</p>
+        </a>
+
+        <a href="/admin/servicios" class="block bg-cream p-8 hover:bg-dark hover:text-white transition-colors group">
+            <span class="font-display text-5xl font-light">{serviciosCount ?? 0}</span>
+            <p class="text-sm text-muted mt-2 group-hover:text-white/60">Servicios activos</p>
+        </a>
+    </div>
+</AdminLayout>

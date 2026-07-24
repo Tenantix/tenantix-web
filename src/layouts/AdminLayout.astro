@@ -1,0 +1,61 @@
+---
+import { checkAdminSession } from "../lib/admin-check";
+import "../styles/global.css";
+
+const session = await checkAdminSession(Astro.cookies);
+if (!session.autenticado) {
+    return Astro.redirect("/admin/login");
+}
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – Atelier Carmen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="font-body bg-white text-dark min-h-screen flex">
+
+    <!-- Sidebar -->
+    <nav class="w-64 bg-dark text-white flex flex-col shrink-0 min-h-screen">
+        <div class="px-6 py-8 border-b border-white/10">
+            <h1 class="font-display text-2xl font-light">Atelier Carmen</h1>
+            <p class="text-xs text-white/40 mt-1 tracking-widest uppercase">Panel de administración</p>
+        </div>
+
+        <div class="flex-1 px-4 py-6 flex flex-col gap-1">
+            <a href="/admin" class="text-sm px-3 py-2 rounded hover:bg-white/10 transition-colors">
+                Dashboard
+            </a>
+            <a href="/admin/galeria" class="text-sm px-3 py-2 rounded hover:bg-white/10 transition-colors">
+                Galería
+            </a>
+            <a href="/admin/servicios" class="text-sm px-3 py-2 rounded hover:bg-white/10 transition-colors">
+                Servicios
+            </a>
+            <a href="/admin/citas" class="text-sm px-3 py-2 rounded hover:bg-white/10 transition-colors">
+                Citas
+            </a>
+        </div>
+
+        <div class="px-6 py-4 border-t border-white/10">
+            <p class="text-xs text-white/40">{session.email}</p>
+            <form method="POST" action="/api/auth/logout" class="mt-2">
+                <button class="text-xs text-white/60 hover:text-white transition-colors tracking-widest uppercase">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="flex-1 p-10">
+        <slot />
+    </main>
+
+</body>
+</html>

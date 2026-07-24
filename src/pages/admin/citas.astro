@@ -1,0 +1,52 @@
+---
+export const prerender = false;
+
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabase";
+
+const { data: citas, error } = await supabase
+    .from("citas")
+    .select("*")
+    .order("fecha", { ascending: false })
+    .order("hora", { ascending: false });
+---
+
+<AdminLayout>
+    <div class="mb-10">
+        <h1 class="font-display text-4xl font-light text-dark">Citas</h1>
+        <p class="text-sm text-muted mt-1">Todas las reservas recibidas</p>
+    </div>
+
+    {error && <p class="text-xs text-red-500 mb-6">Error: {error.message}</p>}
+
+    {citas && citas.length > 0 ? (
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 text-left text-xs tracking-widest uppercase text-muted">
+                        <th class="pb-4 pr-6 font-normal">Fecha</th>
+                        <th class="pb-4 pr-6 font-normal">Hora</th>
+                        <th class="pb-4 pr-6 font-normal">Nombre</th>
+                        <th class="pb-4 pr-6 font-normal">Email</th>
+                        <th class="pb-4 pr-6 font-normal">Teléfono</th>
+                        <th class="pb-4 font-normal">Mensaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {citas.map((c) => (
+                        <tr class="border-b border-gray-100 hover:bg-cream/50 transition-colors">
+                            <td class="py-4 pr-6">{c.fecha}</td>
+                            <td class="py-4 pr-6">{c.hora}</td>
+                            <td class="py-4 pr-6 font-medium">{c.nombre}</td>
+                            <td class="py-4 pr-6 text-muted">{c.email}</td>
+                            <td class="py-4 pr-6 text-muted">{c.telefono}</td>
+                            <td class="py-4 text-muted max-w-[200px] truncate">{c.mensaje || "—"}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    ) : (
+        <p class="text-sm text-muted text-center py-20">No hay citas recibidas todavía.</p>
+    )}
+</AdminLayout>

@@ -1,0 +1,194 @@
+---
+export const prerender = false;
+
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabase";
+
+const { data: servicios, error } = await supabase
+    .from("servicios")
+    .select("*")
+    .order("orden", { ascending: true });
+---
+
+<AdminLayout>
+    <div class="flex items-center justify-between mb-10">
+        <div>
+            <h1 class="font-display text-4xl font-light text-dark">Servicios</h1>
+            <p class="text-sm text-muted mt-1">Gestiona los servicios del atelier</p>
+        </div>
+        <button id="btn-nuevo" class="bg-dark text-white text-xs tracking-widest uppercase px-5 py-3 hover:bg-muted transition-colors">
+            + Nuevo servicio
+        </button>
+    </div>
+
+    {error && <p class="text-xs text-red-500 mb-6">Error: {error.message}</p>}
+
+    <div class="flex flex-col gap-4">
+        {servicios?.map((s) => (
+            <div class="bg-cream p-6 flex items-center gap-6" data-id={s.id}>
+                <span class="font-display text-3xl font-light text-muted w-10">{s.icono}</span>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-display text-xl font-light">{s.titulo}</h3>
+                    <p class="text-xs text-muted truncate mt-1">{s.resumen}</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <button class="btn-editar text-xs tracking-widest uppercase px-4 py-2 border border-dark text-dark hover:bg-dark hover:text-white transition-colors">
+                        Editar
+                    </button>
+                    <button class="btn-eliminar text-xs tracking-widest uppercase px-4 py-2 border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        ))}
+    </div>
+
+    {(!servicios || servicios.length === 0) && (
+        <p class="text-sm text-muted text-center py-20">No hay servicios configurados.</p>
+    )}
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-50 bg-black/50 hidden items-center justify-center">
+        <div class="bg-white w-full max-w-lg mx-4 p-8">
+            <h2 id="modal-title" class="font-display text-2xl font-light mb-6">Nuevo servicio</h2>
+
+            <form id="form-servicio" class="flex flex-col gap-4">
+                <input type="hidden" id="edit-id" />
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">Título</label>
+                    <input id="f-titulo" required class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">Icono</label>
+                    <input id="f-icono" maxlength="10" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">Subtítulo</label>
+                    <input id="f-subtitulo" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">Resumen</label>
+                    <textarea id="f-resumen" rows="2" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark resize-none"></textarea>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">Descripción</label>
+                    <textarea id="f-descripcion" rows="3" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark resize-none"></textarea>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">URL imagen</label>
+                    <input id="f-imagen" type="url" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs tracking-widest uppercase text-muted">Orden</label>
+                    <input id="f-orden" type="number" min="0" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark" />
+                </div>
+
+                <div class="flex gap-3 justify-end mt-2">
+                    <button type="button" id="btn-cancelar" class="text-xs tracking-widest uppercase px-5 py-3 border border-dark text-dark hover:bg-dark hover:text-white transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-dark text-white text-xs tracking-widest uppercase px-5 py-3 hover:bg-muted transition-colors">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</AdminLayout>
+
+<script>
+    const modal = document.getElementById("modal")!;
+    const form = document.getElementById("form-servicio") as HTMLFormElement;
+    const editId = document.getElementById("edit-id") as HTMLInputElement;
+    const modalTitle = document.getElementById("modal-title")!;
+    const fTitulo = document.getElementById("f-titulo") as HTMLInputElement;
+    const fIcono = document.getElementById("f-icono") as HTMLInputElement;
+    const fSubtitulo = document.getElementById("f-subtitulo") as HTMLInputElement;
+    const fResumen = document.getElementById("f-resumen") as HTMLTextAreaElement;
+    const fDescripcion = document.getElementById("f-descripcion") as HTMLTextAreaElement;
+    const fImagen = document.getElementById("f-imagen") as HTMLInputElement;
+    const fOrden = document.getElementById("f-orden") as HTMLInputElement;
+
+    const datosMock: Record<number, any> = {};
+
+    function abrirModal(servicio?: any) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        editId.value = servicio?.id?.toString() || "";
+        modalTitle.textContent = servicio ? "Editar servicio" : "Nuevo servicio";
+        fTitulo.value = servicio?.titulo || "";
+        fIcono.value = servicio?.icono || "";
+        fSubtitulo.value = servicio?.subtitulo || "";
+        fResumen.value = servicio?.resumen || "";
+        fDescripcion.value = servicio?.descripcion || "";
+        fImagen.value = servicio?.imagen || "";
+        fOrden.value = servicio?.orden?.toString() || "0";
+    }
+
+    function cerrarModal() {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        form.reset();
+        editId.value = "";
+    }
+
+    document.getElementById("btn-nuevo")?.addEventListener("click", () => abrirModal());
+    document.getElementById("btn-cancelar")?.addEventListener("click", cerrarModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) cerrarModal(); });
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            icono: fIcono.value,
+            titulo: fTitulo.value,
+            subtitulo: fSubtitulo.value,
+            resumen: fResumen.value,
+            descripcion: fDescripcion.value,
+            imagen: fImagen.value,
+            orden: parseInt(fOrden.value) || 0,
+            href: `/servicios#${fTitulo.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`,
+        };
+
+        const id = editId.value;
+        const url = id ? `/api/admin/servicios?id=${id}` : "/api/admin/servicios";
+        const method = id ? "PUT" : "POST";
+
+        const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+
+        if (res.ok) {
+            window.location.reload();
+        } else {
+            const data = await res.json();
+            alert(data.error || "Error al guardar");
+        }
+    });
+
+    document.querySelectorAll(".btn-editar").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const card = (btn as HTMLElement).closest("[data-id]") as HTMLElement;
+            const id = Number(card.dataset.id);
+            const titulo = card.querySelector("h3")?.textContent || "";
+            const resumen = (card.querySelector("p")?.textContent || "").trim();
+            abrirModal({ id, titulo, resumen });
+        });
+    });
+
+    document.querySelectorAll(".btn-eliminar").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            if (!confirm("¿Eliminar este servicio?")) return;
+            const card = (btn as HTMLElement).closest("[data-id]") as HTMLElement;
+            const id = card.dataset.id;
+            const res = await fetch(`/api/admin/servicios?id=${id}`, { method: "DELETE" });
+            if (res.ok) window.location.reload();
+            else alert("Error al eliminar");
+        });
+    });
+</script>

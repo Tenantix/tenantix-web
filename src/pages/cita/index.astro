@@ -124,50 +124,51 @@ import Layout from "../../layouts/Layout.astro";
         horaHidden.value = "";
 
         try {
-            // Cuando USE_REAL_API=true esto llama a tu API
-            // Por ahora usamos el placeholder directamente
-            const res = await fetch(`/api/disponibilidad?fecha=${fecha}`).catch(() => null);
-            let franjas;
+            const res = await fetch(`/api/citas/disponibilidad?fecha=${fecha}`);
+            if (!res.ok) throw new Error();
 
-            if (res && res.ok) {
-                franjas = await res.json();
-            } else {
-                // Placeholder client-side
-                const horas = ["10:00","10:30","11:00","11:30","12:00","12:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00"];
-                franjas = horas.map((hora, i) => ({ hora, disponible: i % 3 !== 1 }));
-            }
-
-            franjasContainer.innerHTML = "";
-            franjas.forEach(({ hora, disponible }: { hora: string; disponible: boolean }) => {
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.textContent = hora;
-                btn.dataset.hora = hora;
-                btn.className = `text-xs px-4 py-2 border transition-colors duration-200 ${
-                    disponible
-                        ? "border-dark text-dark hover:bg-dark hover:text-white cursor-pointer"
-                        : "border-gray-200 text-gray-300 cursor-not-allowed"
-                }`;
-                btn.disabled = !disponible;
-
-                if (disponible) {
-                    btn.addEventListener("click", () => {
-                        document.querySelectorAll<HTMLButtonElement>("[data-hora]").forEach((b) => {
-                            b.classList.remove("bg-dark", "text-white");
-                            b.classList.add("border-dark", "text-dark");
-                        });
-                        btn.classList.add("bg-dark", "text-white");
-                        btn.classList.remove("text-dark");
-                        horaHidden.value = hora;
-                    });
-                }
-
-                franjasContainer.appendChild(btn);
-            });
+            const franjas: { hora: string; disponible: boolean }[] = await res.json();
+            renderFranjas(franjas);
         } catch {
             franjasContainer.innerHTML = `<p class="text-xs text-red-500">Error cargando horarios.</p>`;
         }
     });
+
+    function renderFranjas(franjas: { hora: string; disponible: boolean }[]) {
+        franjasContainer.innerHTML = "";
+
+        if (franjas.every((f) => !f.disponible)) {
+            franjasContainer.innerHTML = `<p class="text-xs text-muted">No hay horarios disponibles para esta fecha.</p>`;
+            return;
+        }
+
+        franjas.forEach(({ hora, disponible }) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = hora;
+            btn.dataset.hora = hora;
+            btn.className = `text-xs px-4 py-2 border transition-colors duration-200 ${
+                disponible
+                    ? "border-dark text-dark hover:bg-dark hover:text-white cursor-pointer"
+                    : "border-gray-200 text-gray-300 cursor-not-allowed"
+            }`;
+            btn.disabled = !disponible;
+
+            if (disponible) {
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll<HTMLButtonElement>("[data-hora]").forEach((b) => {
+                        b.classList.remove("bg-dark", "text-white");
+                        b.classList.add("border-dark", "text-dark");
+                    });
+                    btn.classList.add("bg-dark", "text-white");
+                    btn.classList.remove("text-dark");
+                    horaHidden.value = hora;
+                });
+            }
+
+            franjasContainer.appendChild(btn);
+        });
+    }
 
     // Submit
     form.addEventListener("submit", async (e) => {
@@ -194,15 +195,12 @@ import Layout from "../../layouts/Layout.astro";
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nombre, email, telefono, fecha, hora, mensaje }),
-            }).catch(() => null);
+            });
 
-            // Si la API no está lista aún, redirigimos igualmente (placeholder)
-            if (!res || res.ok || true) {
-                const params = new URLSearchParams({ nombre, email, fecha, hora });
-                window.location.href = `/cita/confirmacion?${params}`;
-            } else {
-                throw new Error();
-            }
+            if (!res.ok) throw new Error();
+
+            const params = new URLSearchParams({ nombre, email, fecha, hora });
+            window.location.href = `/cita/confirmacion?${params}`;
         } catch {
             errorMsg.classList.remove("hidden");
             btnSubmit.disabled = false;
