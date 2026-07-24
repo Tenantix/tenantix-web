@@ -9,8 +9,8 @@ interface Props {
 }
 
 const {
-    title = "Carmen Selección – Sastrería y Moda Femenina en Burriana",
-    description = "Sastrería y moda femenina en Burriana. Citas personalizadas para que te sientas única.",
+    title = "Atelier Carmen – Sastrería, Arreglos y Asesoría de Imagen en Burriana",
+    description = "Atelier de confección a medida, arreglos y asesoría de imagen en Burriana. Transformamos tus ideas en prendas únicas.",
 } = Astro.props;
 ---
 
@@ -29,11 +29,14 @@ const {
             rel="stylesheet"
     />
 </head>
-<body class="font-body text-dark bg-white">
+<body class="font-body text-dark bg-white flex flex-col min-h-screen">
 <TopBar />
 <Navbar />
-<main>
+<main class="flex-1">
     <slot />
 </main>
+<footer class="bg-dark text-white text-center text-xs text-white/60 py-6 px-6">
+    <p>&copy; {new Date().getFullYear()} Atelier Carmen. Todos los derechos reservados.</p>
+</footer>
 </body>
 </html>

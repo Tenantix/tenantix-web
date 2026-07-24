@@ -1,0 +1,136 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+import { getGaleria } from "../lib/api";
+
+const trabajos = await getGaleria();
+---
+
+<Layout title="Galería – Atelier Carmen">
+    <section class="px-12 py-24 max-w-6xl mx-auto">
+
+        <div class="mb-16">
+            <span class="text-xs tracking-[0.2em] uppercase text-muted">Nuestros trabajos</span>
+            <h1 class="font-display text-6xl font-light text-dark mt-3">Galería</h1>
+        </div>
+
+        <div id="grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {trabajos.map((t) => (
+                <button
+                    class="aspect-[3/4] overflow-hidden bg-cream group cursor-pointer text-left"
+                    data-idx={t.id}
+                    data-imagenes={JSON.stringify(t.imagenes ?? [t.imagen])}
+                    onclick="abrirLightbox(this)"
+                >
+                    <img
+                        src={t.imagen}
+                        alt={t.titulo}
+                        class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span class="absolute bottom-3 left-3 bg-white/90 text-dark text-[10px] tracking-widest uppercase px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {t.titulo}
+                    </span>
+                </button>
+            ))}
+        </div>
+
+    </section>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center">
+        <button
+            id="lb-cerrar"
+            class="absolute top-6 right-6 text-white text-3xl leading-none cursor-pointer hover:opacity-60 transition-opacity z-10"
+            aria-label="Cerrar"
+        >
+            &times;
+        </button>
+
+        <button
+            id="lb-prev"
+            class="absolute left-4 top-1/2 -translate-y-1/2 text-white text-4xl cursor-pointer hover:opacity-60 transition-opacity z-10"
+            aria-label="Anterior"
+        >
+            ‹
+        </button>
+
+        <div class="flex items-center justify-center w-full h-full px-20 py-10">
+            <img
+                id="lb-img"
+                class="max-w-full max-h-full object-contain"
+                alt=""
+            />
+        </div>
+
+        <button
+            id="lb-next"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-white text-4xl cursor-pointer hover:opacity-60 transition-opacity z-10"
+            aria-label="Siguiente"
+        >
+            ›
+        </button>
+
+        <div class="absolute bottom-6 left-0 right-0 text-center">
+            <span id="lb-contador" class="text-white/60 text-xs tracking-widest uppercase"></span>
+        </div>
+    </div>
+
+</Layout>
+
+<script>
+    let imagenesActuales: string[] = [];
+    let idxActual = 0;
+    const lb = document.getElementById("lightbox")!;
+    const lbImg = document.getElementById("lb-img") as HTMLImageElement;
+    const lbContador = document.getElementById("lb-contador")!;
+
+    function abrirLightbox(btn: HTMLElement) {
+        const raw = btn.dataset.imagenes;
+        if (!raw) return;
+        imagenesActuales = JSON.parse(raw);
+        idxActual = 0;
+        mostrarImagen();
+        lb.classList.remove("hidden");
+        lb.classList.add("flex");
+        document.body.style.overflow = "hidden";
+    }
+
+    function mostrarImagen() {
+        lbImg.src = imagenesActuales[idxActual];
+        lbContador.textContent = `${idxActual + 1} / ${imagenesActuales.length}`;
+    }
+
+    function cerrarLightbox() {
+        lb.classList.add("hidden");
+        lb.classList.remove("flex");
+        document.body.style.overflow = "";
+    }
+
+    function anterior() {
+        idxActual = idxActual > 0 ? idxActual - 1 : imagenesActuales.length - 1;
+        mostrarImagen();
+    }
+
+    function siguiente() {
+        idxActual = idxActual < imagenesActuales.length - 1 ? idxActual + 1 : 0;
+        mostrarImagen();
+    }
+
+    // Asignar global para onclick en HTML
+    (window as any).abrirLightbox = abrirLightbox;
+
+    document.getElementById("lb-cerrar")?.addEventListener("click", cerrarLightbox);
+    document.getElementById("lb-prev")?.addEventListener("click", anterior);
+    document.getElementById("lb-next")?.addEventListener("click", siguiente);
+
+    lb.addEventListener("click", (e) => {
+        if (e.target === lb) cerrarLightbox();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (!lb.classList.contains("flex")) return;
+        if (e.key === "Escape") cerrarLightbox();
+        if (e.key === "ArrowLeft") anterior();
+        if (e.key === "ArrowRight") siguiente();
+    });
+</script>

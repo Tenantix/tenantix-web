@@ -4,26 +4,34 @@ import { getHeroSlides } from "../lib/api";
 const slides = await getHeroSlides();
 ---
 
-<section class="bg-cream flex flex-col md:flex-row items-stretch min-h-[420px]">
+<section class="bg-cream flex flex-col md:flex-row items-stretch min-h-[480px]">
     <!-- Columna izquierda: texto -->
     <div class="flex flex-col justify-center px-12 py-16 md:w-2/5">
-    <span class="text-xs tracking-[0.2em] uppercase text-muted mb-4">
-      Colección verano
-    </span>
+        <span class="text-xs tracking-[0.2em] uppercase text-muted mb-4">
+            Atelier en Burriana
+        </span>
         <h1 class="font-display text-5xl leading-tight font-light text-dark mb-6">
-            Encuentra el vestido<br />
-            <em>que siempre soñaste</em>
+            Donde tus ideas<br />
+            <em class="font-display">cobran forma</em>
         </h1>
         <p class="text-sm text-muted leading-relaxed mb-8">
-            Sastrería y moda femenina en Burriana.<br />
-            Citas personalizadas para que te sientas única.
+            Confección a medida, arreglos, asesoría de imagen y alquiler.<br />
+            Prendas únicas con atención personalizada.
         </p>
-        <a
-                href="/catalogo"
-                class="self-start bg-dark text-white text-xs tracking-widest uppercase px-6 py-3 hover:bg-muted transition-colors duration-300"
-        >
-            Ver catálogo
-        </a>
+        <div class="flex flex-wrap gap-3">
+            <a
+                    href="/servicios"
+                    class="bg-dark text-white text-xs tracking-widest uppercase px-6 py-3 hover:bg-muted transition-colors duration-300"
+            >
+                Nuestros servicios
+            </a>
+            <a
+                    href="/cita"
+                    class="border border-dark text-dark text-xs tracking-widest uppercase px-6 py-3 hover:bg-dark hover:text-white transition-colors duration-300"
+            >
+                Reservar cita
+            </a>
+        </div>
     </div>
 
     <!-- Columna derecha: carrusel -->
@@ -33,7 +41,7 @@ const slides = await getHeroSlides();
                     <div class="min-w-[25%] h-full">
                         <img
                                 src={src}
-                                alt={`Vestido ${i + 1}`}
+                                alt={`Trabajo ${i + 1}`}
                                 class="w-full h-full object-cover object-top"
                         />
                     </div>

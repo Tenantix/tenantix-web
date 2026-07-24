@@ -1,73 +1,51 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import StickyBar from "../components/StickyBar.astro";
 
-const servicios = [
-  {
-    numero: "01",
-    titulo: "Atelier & Sastrería",
-    subtitulo: "Confección y arreglos a medida",
-    descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    imagen: "https://picsum.photos/seed/atelier/600/800",
-  },
-  {
-    numero: "02",
-    titulo: "Asesoría de Imagen",
-    subtitulo: "Tu look ideal, sin dudas",
-    descripcion: "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.",
-    imagen: "https://picsum.photos/seed/asesoria/600/800",
-  },
-  {
-    numero: "03",
-    titulo: "Alquiler de Vestidos",
-    subtitulo: "Colección para ocasiones especiales",
-    descripcion: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
-    imagen: "https://picsum.photos/seed/alquiler/600/800",
-  },
-];
+import { getServicios } from "../lib/api";
+
+const servicios = await getServicios();
 ---
 
-<Layout title="Servicios – Carmen Selección">
-  <section class="px-12 py-24 max-w-5xl mx-auto">
+<Layout title="Servicios – Atelier Carmen">
+    <section class="px-12 py-24 max-w-5xl mx-auto">
 
-    <div class="mb-20">
-      <span class="text-xs tracking-[0.2em] uppercase text-muted">Lo que hacemos</span>
-      <h1 class="font-display text-6xl font-light text-dark mt-3">Servicios</h1>
-    </div>
-
-    <div class="flex flex-col gap-32">
-      {servicios.map((s, i) => (
-        <div class={`grid md:grid-cols-2 gap-16 items-center ${i % 2 !== 0 ? "md:[direction:rtl]" : ""}`}>
-
-          <!-- Imagen -->
-          <div class="aspect-[3/4] overflow-hidden bg-cream md:[direction:ltr]">
-            <img
-              src={s.imagen}
-              alt={s.titulo}
-              class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-            />
-          </div>
-
-          <!-- Texto -->
-          <div class="flex flex-col gap-6 md:[direction:ltr]">
-            <span class="font-display text-6xl font-light text-gray-100">{s.numero}</span>
-            <div class="-mt-8">
-              <p class="text-xs tracking-widest uppercase text-muted mb-2">{s.subtitulo}</p>
-              <h2 class="font-display text-4xl font-light text-dark">{s.titulo}</h2>
-            </div>
-            <p class="text-sm text-muted leading-relaxed">{s.descripcion}</p>
-            <a
-              href="/cita"
-              class="self-start text-xs tracking-widest uppercase border border-dark text-dark px-6 py-3 hover:bg-dark hover:text-white transition-colors duration-200 mt-2"
-            >
-              Pedir cita
-            </a>
-          </div>
-
+        <div class="mb-20">
+            <span class="text-xs tracking-[0.2em] uppercase text-muted">Lo que hacemos</span>
+            <h1 class="font-display text-6xl font-light text-dark mt-3">Servicios de atelier</h1>
         </div>
-      ))}
-    </div>
 
-  </section>
-  <StickyBar />
+        <div class="flex flex-col gap-32">
+            {servicios.map((s, i) => (
+                <div class={`grid md:grid-cols-2 gap-16 items-center ${i % 2 !== 0 ? "md:[direction:rtl]" : ""}`}>
+
+                    <!-- Imagen -->
+                    <div class="aspect-[3/4] overflow-hidden bg-cream md:[direction:ltr]">
+                        <img
+                            src={s.imagen}
+                            alt={s.titulo}
+                            class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                        />
+                    </div>
+
+                    <!-- Texto -->
+                    <div class="flex flex-col gap-6 md:[direction:ltr]">
+                        <span class="font-display text-7xl font-light text-gray-100">{s.icono}</span>
+                        <div class="-mt-8">
+                            <p class="text-xs tracking-widest uppercase text-muted mb-2">{s.subtitulo}</p>
+                            <h2 class="font-display text-4xl font-light text-dark">{s.titulo}</h2>
+                        </div>
+                        <p class="text-sm text-muted leading-relaxed">{s.descripcion}</p>
+                        <a
+                            href="/cita"
+                            class="self-start text-xs tracking-widest uppercase border border-dark text-dark px-6 py-3 hover:bg-dark hover:text-white transition-colors duration-200 mt-2"
+                        >
+                            Solicitar presupuesto
+                        </a>
+                    </div>
+
+                </div>
+            ))}
+        </div>
+
+    </section>
 </Layout>
