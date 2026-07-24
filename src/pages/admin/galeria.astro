@@ -68,8 +68,13 @@ const { data: trabajos, error } = await supabase
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs tracking-widest uppercase text-muted">URL imagen principal</label>
-                    <input id="f-imagen" type="url" class="border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-dark" />
+                    <label class="text-xs tracking-widest uppercase text-muted">Imagen principal</label>
+                    <input id="f-imagen-file" type="file" accept="image/*" class="text-sm text-muted file:mr-4 file:py-2 file:px-4 file:border file:border-dark file:text-xs file:tracking-widest file:uppercase file:bg-white file:text-dark hover:file:bg-dark hover:file:text-white file:cursor-pointer file:transition-colors" />
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] text-muted uppercase tracking-wider">o URL</span>
+                        <input id="f-imagen" type="url" placeholder="https://..." class="flex-1 border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-dark" />
+                    </div>
+                    <img id="f-imagen-preview" class="hidden mt-2 w-20 h-20 object-cover" />
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -98,7 +103,41 @@ const { data: trabajos, error } = await supabase
     const fTitulo = document.getElementById("f-titulo") as HTMLInputElement;
     const fCategoria = document.getElementById("f-categoria") as HTMLInputElement;
     const fImagen = document.getElementById("f-imagen") as HTMLInputElement;
+    const fImagenFile = document.getElementById("f-imagen-file") as HTMLInputElement;
+    const fImagenPreview = document.getElementById("f-imagen-preview") as HTMLImageElement;
     const fImagenes = document.getElementById("f-imagenes") as HTMLTextAreaElement;
+
+    let subiendo = false;
+
+    fImagenFile.addEventListener("change", () => {
+        const file = fImagenFile.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                fImagenPreview.src = e.target?.result as string;
+                fImagenPreview.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    fImagen.addEventListener("input", () => {
+        if (fImagen.value) {
+            fImagenPreview.src = fImagen.value;
+            fImagenPreview.classList.remove("hidden");
+            fImagenFile.value = "";
+        }
+    });
+
+    async function subirImagen(file: File): Promise<string> {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("folder", "galeria");
+        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        if (!res.ok) throw new Error("Error al subir imagen");
+        const data = await res.json();
+        return data.url;
+    }
 
     function abrirModal(trabajo?: { id: number; titulo: string; categoria: string; imagen: string; imagenes?: string[] }) {
         modal.classList.remove("hidden");
@@ -109,6 +148,13 @@ const { data: trabajos, error } = await supabase
         fCategoria.value = trabajo?.categoria || "";
         fImagen.value = trabajo?.imagen || "";
         fImagenes.value = trabajo?.imagenes?.join("\n") || "";
+        fImagenFile.value = "";
+        if (trabajo?.imagen) {
+            fImagenPreview.src = trabajo.imagen;
+            fImagenPreview.classList.remove("hidden");
+        } else {
+            fImagenPreview.classList.add("hidden");
+        }
     }
 
     function cerrarModal() {
@@ -116,6 +162,7 @@ const { data: trabajos, error } = await supabase
         modal.classList.remove("flex");
         form.reset();
         editId.value = "";
+        fImagenPreview.classList.add("hidden");
     }
 
     document.getElementById("btn-nuevo")?.addEventListener("click", () => abrirModal());
@@ -124,25 +171,40 @@ const { data: trabajos, error } = await supabase
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        if (subiendo) return;
+        subiendo = true;
 
-        const payload = {
-            titulo: fTitulo.value,
-            categoria: fCategoria.value,
-            imagen: fImagen.value,
-            imagenes: fImagenes.value.split("\n").filter(Boolean),
-        };
+        try {
+            let imagenUrl = fImagen.value;
 
-        const id = editId.value;
-        const url = id ? `/api/admin/trabajos?id=${id}` : "/api/admin/trabajos";
-        const method = id ? "PUT" : "POST";
+            const file = fImagenFile.files?.[0];
+            if (file) {
+                imagenUrl = await subirImagen(file);
+            }
 
-        const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            const payload = {
+                titulo: fTitulo.value,
+                categoria: fCategoria.value,
+                imagen: imagenUrl,
+                imagenes: fImagenes.value.split("\n").filter(Boolean),
+            };
 
-        if (res.ok) {
-            window.location.reload();
-        } else {
-            const data = await res.json();
-            alert(data.error || "Error al guardar");
+            const id = editId.value;
+            const url = id ? `/api/admin/trabajos?id=${id}` : "/api/admin/trabajos";
+            const method = id ? "PUT" : "POST";
+
+            const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+
+            if (res.ok) {
+                window.location.reload();
+            } else {
+                const data = await res.json();
+                alert(data.error || "Error al guardar");
+            }
+        } catch (err) {
+            alert("Error al subir la imagen");
+        } finally {
+            subiendo = false;
         }
     });
 
